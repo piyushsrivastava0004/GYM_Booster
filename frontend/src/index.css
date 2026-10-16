@@ -12,39 +12,67 @@
     color: #ffffff;
   }
 
-  /* High-contrast form controls for all light cards, modals, and forms */
-  input:not([type='checkbox']):not([type='radio']),
+  /* Default inputs inside standard forms */
+  input:not([type='checkbox']):not([type='radio']):not(.login-input),
   select,
   textarea {
-    color: #0f172a !important;
+    color: #0f172a;
     background-color: #ffffff;
   }
 
-  input::placeholder,
+  input:not(.login-input)::placeholder,
   textarea::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
+    color: #94a3b8;
+    opacity: 1;
   }
 
-  /* Option tags inside select dropdowns */
+  /* Option dropdowns */
   select option {
     color: #0f172a !important;
     background-color: #ffffff !important;
   }
+}
 
-  /* Explicit dark-themed inputs (LoginPage & dark search bars) */
-  .dark-input,
-  .dark-theme input,
-  input.text-white,
-  textarea.text-white {
-    color: #ffffff !important;
-    background-color: rgba(30, 41, 59, 0.8) !important;
-  }
+/* High-contrast form controls for all light cards, modals, and tables */
+.bg-white input:not([type='checkbox']):not([type='radio']),
+.bg-white select,
+.bg-white textarea,
+.bg-slate-50 input:not([type='checkbox']):not([type='radio']),
+.bg-slate-50 select,
+.bg-slate-50 textarea {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background-color: #ffffff !important;
+}
 
-  input.text-white::placeholder,
-  textarea.text-white::placeholder {
-    color: #64748b !important;
-  }
+.bg-white input::placeholder,
+.bg-white textarea::placeholder,
+.bg-slate-50 input::placeholder,
+.bg-slate-50 textarea::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Login Page inputs - strictly white text on dark slate (with Chrome autofill protection) */
+.login-input,
+input.login-input,
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover, 
+.login-input:-webkit-autofill:focus, 
+.login-input:-webkit-autofill:active {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #1e293b !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  caret-color: #ffffff !important;
+}
+
+.login-input::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
 }
 
 /* Custom scrollbars */
