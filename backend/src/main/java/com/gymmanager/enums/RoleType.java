@@ -1,0 +1,12 @@
+package com.gymmanager.enums;
+
+public enum RoleType {
+    ROLE_GYM_OWNER,
+    ROLE_ADMINISTRATOR,
+    ROLE_RECEPTIONIST,
+    ROLE_TRAINER,
+    ROLE_NUTRITIONIST,
+    ROLE_ACCOUNTANT,
+    ROLE_INVENTORY_MANAGER,
+    ROLE_MEMBER
+}

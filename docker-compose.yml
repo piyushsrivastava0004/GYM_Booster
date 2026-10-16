@@ -1,0 +1,78 @@
+services:
+  # 1. Production PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: gym_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-gymdb}
+      POSTGRES_USER: ${DB_USER:-gymuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-gympassword_secure_2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-gymuser} -d ${DB_NAME:-gymdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gym_network
+
+  # 2. Spring Boot Backend API (Java 21)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gym_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-gymdb}
+      DB_USER: ${DB_USER:-gymuser}
+      DB_PASSWORD: ${DB_PASSWORD:-gympassword_secure_2026}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_mockKey12345}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-secretMockRazorpaySecret987}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-webhookSecretRazorpay123}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-notifications@gymmanagement.in}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-secretpassword}
+    volumes:
+      - gym_uploads:/app/uploads
+    expose:
+      - "8080"
+    networks:
+      - gym_network
+
+  # 3. React Vite Frontend + Nginx Reverse Proxy
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gym_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - gym_network
+
+volumes:
+  postgres_data:
+    name: gym_postgres_data
+  gym_uploads:
+    name: gym_uploads_data
+
+networks:
+  gym_network:
+    name: gym_network
+    driver: bridge

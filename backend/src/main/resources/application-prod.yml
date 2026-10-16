@@ -1,0 +1,67 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: gym-management-system
+
+  datasource:
+    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:gymdb}?sslmode=prefer}}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USER:gymuser}
+    password: ${DB_PASSWORD:gympassword_secure_2026}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:10}
+      minimum-idle: ${DB_POOL_MIN:2}
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 20000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 50
+
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:notifications@gymmanagement.in}
+    password: ${SMTP_PASSWORD:secretpassword}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    expiration-ms: 86400000 # 24 hours
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_mockKey12345}
+    key-secret: ${RAZORPAY_KEY_SECRET:secretMockRazorpaySecret987}
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:webhookSecretRazorpay123}
+    currency: INR
+  storage:
+    upload-dir: /app/uploads
+  currency: INR
+  timezone: Asia/Kolkata
+  tax:
+    gst-rate: 18.0
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
