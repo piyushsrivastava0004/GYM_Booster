@@ -6,18 +6,22 @@ import { Dumbbell, Shield, User, Lock, AlertCircle } from 'lucide-react';
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [username, setUsername] = useState<string>('owner');
-  const [password, setPassword] = useState<string>('Owner@123');
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!username.trim() || !password) {
+      setError('Please enter your username and password');
+      return;
+    }
     setLoading(true);
     setError(null);
 
     try {
-      const loggedInUser = await login({ username, password });
+      const loggedInUser = await login({ username: username.trim(), password });
       if (loggedInUser.role === 'ROLE_MEMBER') {
         navigate('/portal');
       } else {
@@ -29,18 +33,6 @@ const LoginPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // Demo accounts for quick evaluation of all 8 roles
-  const demoAccounts = [
-    { role: 'Gym Owner', u: 'owner', p: 'Owner@123', desc: 'Full business, all branches, P&L' },
-    { role: 'Administrator', u: 'admin', p: 'Admin@123', desc: 'Day-to-day operations' },
-    { role: 'Receptionist', u: 'receptionist', p: 'Recept@123', desc: 'Member check-in, sales' },
-    { role: 'Trainer', u: 'trainer_rahul', p: 'Trainer@123', desc: 'Workouts, PT appointments' },
-    { role: 'Nutritionist', u: 'nutritionist_priya', p: 'Nutri@123', desc: 'Diet plans, macro targets' },
-    { role: 'Accountant', u: 'accountant_amit', p: 'Account@123', desc: 'Billing, expenses, collections' },
-    { role: 'Inventory Mgr', u: 'inventory_vikram', p: 'Invent@123', desc: 'Equipment, supplement stock' },
-    { role: 'Gym Member', u: 'member_arjun', p: 'Member@123', desc: 'Personal mobile QR pass & logs' },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4">
@@ -73,6 +65,7 @@ const LoginPage: React.FC = () => {
                 <input
                   type="text"
                   required
+                  autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter username"
@@ -90,6 +83,7 @@ const LoginPage: React.FC = () => {
                 <input
                   type="password"
                   required
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter password"
@@ -116,31 +110,12 @@ const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* Demo Role Switcher */}
-          <div className="mt-6 pt-5 border-t border-slate-800">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-              1-Click Demo Accounts (8 Roles)
+          {/* Security Footer */}
+          <div className="mt-6 pt-5 border-t border-slate-800 text-center">
+            <p className="text-[11px] text-slate-500 flex items-center justify-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-emerald-500" />
+              <span>256-bit SSL encrypted • FitPulse Gym Manager</span>
             </p>
-            <div className="grid grid-cols-2 gap-1.5">
-              {demoAccounts.map((item) => (
-                <button
-                  key={item.u}
-                  type="button"
-                  onClick={() => {
-                    setUsername(item.u);
-                    setPassword(item.p);
-                  }}
-                  className={`p-2 rounded-lg border text-left transition ${
-                    username === item.u
-                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
-                      : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-                  }`}
-                >
-                  <p className="text-[11px] font-bold leading-tight">{item.role}</p>
-                  <p className="text-[9px] text-slate-500 truncate">{item.desc}</p>
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>
