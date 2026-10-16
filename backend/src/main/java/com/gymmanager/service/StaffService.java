@@ -61,10 +61,14 @@ public class StaffService {
 
         RoleType role = dto.getRole() != null ? dto.getRole() : RoleType.ROLE_TRAINER;
 
+        String rawPassword = dto.getPassword() != null && !dto.getPassword().isBlank()
+                ? dto.getPassword()
+                : "Staff@FitPulse2026";
+
         User user = User.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
-                .password(passwordEncoder.encode("Staff@FitPulse2026"))
+                .password(passwordEncoder.encode(rawPassword))
                 .fullName(dto.getFullName())
                 .phone(dto.getPhone())
                 .role(role)
@@ -198,7 +202,35 @@ public class StaffService {
                 .build();
     }
 
+    @Transactional
+    public StaffDto updateStaff(Long id, StaffDto dto) {
+        StaffProfile profile = staffProfileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Staff profile not found with ID: " + id));
+
+        User user = profile.getUser();
+        if (dto.getFullName() != null && !dto.getFullName().isBlank()) user.setFullName(dto.getFullName());
+        if (dto.getPhone() != null && !dto.getPhone().isBlank()) user.setPhone(dto.getPhone());
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) user.setEmail(dto.getEmail());
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+        if (dto.getRole() != null) user.setRole(dto.getRole());
+        userRepository.save(user);
+
+        if (dto.getDesignation() != null) profile.setDesignation(dto.getDesignation());
+        if (dto.getDepartment() != null) profile.setDepartment(dto.getDepartment());
+        if (dto.getQualification() != null) profile.setQualification(dto.getQualification());
+        if (dto.getSpecialties() != null) profile.setSpecialties(dto.getSpecialties());
+        if (dto.getBaseSalary() != null) profile.setBaseSalary(dto.getBaseSalary());
+        if (dto.getCommissionPercent() != null) profile.setCommissionPercent(dto.getCommissionPercent());
+        if (dto.getStatus() != null) profile.setStatus(dto.getStatus());
+
+        profile = staffProfileRepository.save(profile);
+        return mapStaffToDto(profile);
+    }
+
     private StaffDto mapStaffToDto(StaffProfile p) {
+        String staffCode = "STF-" + String.format("%04d", p.getId());
         return StaffDto.builder()
                 .id(p.getId())
                 .userId(p.getUser().getId())
@@ -207,6 +239,7 @@ public class StaffService {
                 .email(p.getUser().getEmail())
                 .phone(p.getUser().getPhone())
                 .role(p.getUser().getRole())
+                .staffCode(staffCode)
                 .branchId(p.getUser().getBranch() != null ? p.getUser().getBranch().getId() : null)
                 .branchName(p.getUser().getBranch() != null ? p.getUser().getBranch().getName() : "N/A")
                 .designation(p.getDesignation())

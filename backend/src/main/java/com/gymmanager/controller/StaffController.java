@@ -29,6 +29,12 @@ public class StaffController {
         return ResponseEntity.ok(staffService.createStaff(dto));
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Update staff profile")
+    public ResponseEntity<StaffDto> updateStaff(@PathVariable Long id, @RequestBody StaffDto dto) {
+        return ResponseEntity.ok(staffService.updateStaff(id, dto));
+    }
+
     @GetMapping
     @Operation(summary = "Get all staff members")
     public ResponseEntity<List<StaffDto>> getAllStaff(@RequestParam(required = false) Long branchId) {

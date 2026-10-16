@@ -187,14 +187,19 @@ const DashboardPage: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={metrics?.revenueTrend || []}>
                 <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} tickFormatter={(val) => `₹${val / 1000}k`} />
+                <YAxis
+                  stroke="#64748b"
+                  fontSize={11}
+                  domain={[0, 'auto']}
+                  tickFormatter={(val) => (val === 0 ? '₹0' : val >= 1000 ? `₹${Math.round(val / 1000)}k` : `₹${val}`)}
+                />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                   formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, '']}
                 />
                 <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
-                <Bar dataKey="collections" name="Collections (₹)" fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expenses" name="Expenses (₹)" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="collections" name="Collections (₹)" fill="#10b981" radius={[4, 4, 0, 0]} minPointSize={4} />
+                <Bar dataKey="expenses" name="Expenses (₹)" fill="#ef4444" radius={[4, 4, 0, 0]} minPointSize={4} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -213,7 +218,7 @@ const DashboardPage: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={metrics?.peakHours || []}>
                 <XAxis dataKey="hourLabel" stroke="#64748b" fontSize={10} />
-                <YAxis stroke="#64748b" fontSize={10} />
+                <YAxis stroke="#64748b" fontSize={10} allowDecimals={false} domain={[0, 'auto']} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                 />

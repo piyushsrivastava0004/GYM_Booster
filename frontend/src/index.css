@@ -4,7 +4,46 @@
 
 @layer base {
   body {
-    @apply bg-slate-900 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-white min-h-screen;
+    @apply bg-slate-900 text-slate-100 font-sans antialiased min-h-screen;
+  }
+
+  ::selection {
+    background-color: #10b981;
+    color: #ffffff;
+  }
+
+  /* High-contrast form controls for all light cards, modals, and forms */
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    color: #0f172a !important;
+    background-color: #ffffff;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+  }
+
+  /* Option tags inside select dropdowns */
+  select option {
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+  }
+
+  /* Explicit dark-themed inputs (LoginPage & dark search bars) */
+  .dark-input,
+  .dark-theme input,
+  input.text-white,
+  textarea.text-white {
+    color: #ffffff !important;
+    background-color: rgba(30, 41, 59, 0.8) !important;
+  }
+
+  input.text-white::placeholder,
+  textarea.text-white::placeholder {
+    color: #64748b !important;
   }
 }
 

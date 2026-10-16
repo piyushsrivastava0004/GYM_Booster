@@ -33,10 +33,10 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
                               @Param("startDate") LocalDateTime startDate,
                               @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT FUNCTION('HOUR', a.checkInTime) as hr, COUNT(a) as cnt FROM Attendance a " +
+    @Query("SELECT hour(a.checkInTime) as hr, COUNT(a) as cnt FROM Attendance a " +
            "WHERE (:branchId IS NULL OR a.branch.id = :branchId) " +
            "AND a.checkInTime BETWEEN :startDate AND :endDate " +
-           "GROUP BY FUNCTION('HOUR', a.checkInTime) ORDER BY hr ASC")
+           "GROUP BY hour(a.checkInTime) ORDER BY hr ASC")
     List<Object[]> getPeakHours(@Param("branchId") Long branchId,
                                 @Param("startDate") LocalDateTime startDate,
                                 @Param("endDate") LocalDateTime endDate);

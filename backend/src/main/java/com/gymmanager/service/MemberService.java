@@ -162,6 +162,9 @@ public class MemberService {
         User user = profile.getUser();
         user.setFullName(dto.getFullName());
         user.setPhone(dto.getPhone());
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
         userRepository.save(user);
 
         profile.setDateOfBirth(dto.getDateOfBirth());

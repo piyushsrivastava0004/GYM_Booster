@@ -129,6 +129,7 @@ export const staffApi = {
   applyLeave: (data: any) => api.post<StaffLeave>('/staff/leaves', data),
   updateLeaveStatus: (leaveId: number, status: string) =>
     api.patch<StaffLeave>(`/staff/leaves/${leaveId}/status`, null, { params: { status } }),
+  updateStaff: (id: number, data: any) => api.put<Staff>(`/staff/${id}`, data),
 };
 
 export const workoutApi = {

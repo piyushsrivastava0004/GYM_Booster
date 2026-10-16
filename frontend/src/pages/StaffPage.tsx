@@ -12,6 +12,7 @@ import {
   Phone,
   Shield,
   Briefcase,
+  Pencil,
 } from 'lucide-react';
 import { staffApi, branchAndSettingsApi } from '../services/api';
 import { Staff, StaffShift, StaffLeave, RoleType, Branch } from '../types';
@@ -32,10 +33,26 @@ export const StaffPage: React.FC = () => {
 
   // Modals
   const [showAddStaffModal, setShowAddStaffModal] = useState<boolean>(false);
+  const [showEditStaffModal, setShowEditStaffModal] = useState<boolean>(false);
+  const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [showAddShiftModal, setShowAddShiftModal] = useState<boolean>(false);
   const [showApplyLeaveModal, setShowApplyLeaveModal] = useState<boolean>(false);
 
   // Forms
+  const [editForm, setEditForm] = useState({
+    fullName: '',
+    phone: '',
+    email: '',
+    role: 'ROLE_TRAINER' as RoleType,
+    designation: '',
+    department: 'Fitness',
+    qualification: '',
+    specialties: '',
+    baseSalary: 0,
+    commissionPercentage: 0,
+    status: 'ACTIVE',
+    password: '',
+  });
   const [staffForm, setStaffForm] = useState({
     username: '',
     email: '',
@@ -105,6 +122,42 @@ export const StaffPage: React.FC = () => {
       fetchStaff();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to add staff member');
+    }
+  };
+
+  const openEditModal = (s: Staff) => {
+    setEditingStaff(s);
+    setEditForm({
+      fullName: s.fullName || '',
+      phone: s.phone || '',
+      email: s.email || '',
+      role: s.role || 'ROLE_TRAINER',
+      designation: s.designation || '',
+      department: s.department || 'Fitness',
+      qualification: s.qualification || '',
+      specialties: s.specialties || '',
+      baseSalary: s.baseSalary || 0,
+      commissionPercentage: s.commissionPercentage || 0,
+      status: s.status || 'ACTIVE',
+      password: '',
+    });
+    setShowEditStaffModal(true);
+  };
+
+  const handleUpdateStaff = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStaff) return;
+    try {
+      await staffApi.updateStaff(editingStaff.id, {
+        ...editForm,
+        baseSalary: Number(editForm.baseSalary),
+        commissionPercentage: Number(editForm.commissionPercentage),
+      });
+      setShowEditStaffModal(false);
+      fetchStaff();
+      alert('Staff profile updated successfully!');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update staff member');
     }
   };
 
@@ -224,15 +277,31 @@ export const StaffPage: React.FC = () => {
               >
                 <div>
                   <div className="flex justify-between items-start">
-                    <div>
-                      <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                        {s.staffCode}
-                      </span>
-                      <h3 className="text-lg font-bold text-slate-900 mt-1">{s.fullName}</h3>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 font-bold text-base shadow-sm">
+                        {s.fullName?.charAt(0) || 'S'}
+                      </div>
+                      <div>
+                        <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                          {s.staffCode || `STF-${s.id.toString().padStart(4, '0')}`}
+                        </span>
+                        <h3 className="text-base font-bold text-slate-900 mt-0.5">{s.fullName}</h3>
+                      </div>
                     </div>
-                    <span className="text-xs font-semibold px-2 py-1 rounded bg-emerald-50 text-emerald-800">
-                      {s.role.replace('ROLE_', '')}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-semibold px-2 py-1 rounded bg-emerald-50 text-emerald-800">
+                        {s.role.replace('ROLE_', '')}
+                      </span>
+                      {canManage && (
+                        <button
+                          onClick={() => openEditModal(s)}
+                          className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                          title="Edit Staff Member"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-1.5 text-xs text-slate-600 mt-3">
@@ -639,6 +708,164 @@ export const StaffPage: React.FC = () => {
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs"
                 >
                   Submit Application
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Staff Modal */}
+      {showEditStaffModal && editingStaff && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-bold text-lg text-slate-900">Edit Staff Profile</h3>
+                <p className="text-xs text-slate-500">Update staff details, compensation, and status</p>
+              </div>
+              <button onClick={() => setShowEditStaffModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-base p-1">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateStaff} className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.fullName}
+                    onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white placeholder-slate-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white placeholder-slate-400"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white placeholder-slate-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Role Type *</label>
+                  <select
+                    value={editForm.role}
+                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value as RoleType })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-xs text-slate-900"
+                  >
+                    <option value="ROLE_TRAINER">Fitness Trainer</option>
+                    <option value="ROLE_RECEPTIONIST">Receptionist</option>
+                    <option value="ROLE_NUTRITIONIST">Nutritionist</option>
+                    <option value="ROLE_ACCOUNTANT">Accountant</option>
+                    <option value="ROLE_INVENTORY_MANAGER">Inventory Manager</option>
+                    <option value="ROLE_ADMINISTRATOR">Administrator</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Base Monthly Salary (₹)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={editForm.baseSalary}
+                    onChange={(e) => setEditForm({ ...editForm, baseSalary: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Commission %</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={editForm.commissionPercentage}
+                    onChange={(e) => setEditForm({ ...editForm, commissionPercentage: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Employment Status</label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-xs text-slate-900"
+                  >
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="ON_LEAVE">ON LEAVE</option>
+                    <option value="RESIGNED">RESIGNED</option>
+                    <option value="TERMINATED">TERMINATED</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Reset Password (Optional)</label>
+                  <input
+                    type="password"
+                    value={editForm.password}
+                    onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                    placeholder="Leave blank to keep current"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white placeholder-slate-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Qualification</label>
+                <input
+                  type="text"
+                  value={editForm.qualification}
+                  onChange={(e) => setEditForm({ ...editForm, qualification: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white placeholder-slate-400"
+                  placeholder="e.g. ACSM Certified, ISSA Master Trainer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Specialties</label>
+                <input
+                  type="text"
+                  value={editForm.specialties}
+                  onChange={(e) => setEditForm({ ...editForm, specialties: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 bg-white placeholder-slate-400"
+                  placeholder="e.g. Hypertrophy, Crossfit, Injury Rehab"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowEditStaffModal(false)}
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 text-xs hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs transition"
+                >
+                  Update Staff Profile
                 </button>
               </div>
             </form>

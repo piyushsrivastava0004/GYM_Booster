@@ -15,6 +15,8 @@ public class StaffDto {
     private Long id;
     private Long userId;
     private String username;
+    private String password;
+    private String staffCode;
     private String fullName;
     private String email;
     private String phone;
